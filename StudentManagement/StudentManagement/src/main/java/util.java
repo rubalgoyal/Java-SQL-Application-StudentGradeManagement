@@ -128,6 +128,32 @@ public class util {
         }
         return studentId;
     }
+    public static int getAssignmentId(String assignmentName, int classId,Connection conn){
+        String sqlQuery = String.format(
+                """
+                        SELECT assignment_id 
+                        FROM assignment
+                        WHERE assignment_name = '%s'
+                            AND class_id = %d;
+                        """
+                ,assignmentName
+                ,classId
+        );
+        int assignmentId;
+        try{
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+            resultSet.next();
+            if(resultSet.getRow() == 0)
+                assignmentId = -1;
+            else
+                assignmentId = resultSet.getInt("assignment_id");
+
+        }catch (SQLException s){
+            throw new RuntimeException(s);
+        }
+        return assignmentId;
+    }
 
     public static boolean checkAssignmentExist(int categoryId, int classId,String assignmentName, Connection conn){
         String sqlQuery = String.format("""
@@ -160,7 +186,7 @@ public class util {
                        """
                       SELECT COUNT(*) FROM student
                       WHERE student_id = %d
-                        AND user_name = '%s'
+                        AND username = '%s'
                         
                       """
                 ,studentId
@@ -217,9 +243,6 @@ public class util {
 
         return rowCount;
     }
-
-
-
     public static String randomAddressGenerator() {
             String[] streets = {"Main St.", "Oak St.", "Park Ave.", "Broadway", "Maple St.", "Cedar St.", "Elm St.", "High St.", "1st St.", "2nd St."};
             String[] cities = {"New York", "Los Angeles", "Chicago", "Houston", "Philadelphia", "Phoenix", "San Antonio", "San Diego", "Dallas", "San Jose"};
@@ -233,8 +256,6 @@ public class util {
             return street + "," + city + "," + state+ "," +zipCode;
 
     }
-
-
 
 }
 

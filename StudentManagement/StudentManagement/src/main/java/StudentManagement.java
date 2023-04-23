@@ -1,13 +1,15 @@
 import java.sql.*;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class StudentManagement {
+    private static final Logger LOGGER = Logger.getLogger("Student Management");
 
     public static void addStudent(String userName, int studentId, String firstName, String lastName, Connection conn, ActiveClass activeClass){
         boolean isStudentIdExist = util.checkStudentExist(studentId, userName,conn);
         int classId = activeClass.getClassID();
         if(isStudentIdExist) {
-            System.out.println("Student already exist, enrolling the student in class");
+            LOGGER.info("Student already exist, enrolling the student in class");
             enrollStudent(studentId, classId, conn);
         }
         else{
@@ -33,7 +35,7 @@ public class StudentManagement {
 
                 int rowInserted = statement.executeUpdate();
                 if (rowInserted > 0)
-                    System.out.println("New student successfully inserted");
+                    LOGGER.info("New student successfully inserted");
                 conn.commit();
             } catch (SQLException s) {
                 throw new RuntimeException(s);
@@ -48,7 +50,8 @@ public class StudentManagement {
         if(isStudentExist){
             enrollStudent(studentId,activeClass.getClassID(),conn);
         }
-        else System.out.println("Student does not exist");
+        else
+            LOGGER.severe("Student does not exist");
     }
 
     public static void showStudents(ActiveClass activeClass, Connection conn){
@@ -107,8 +110,63 @@ public class StudentManagement {
         }
     }
 
-    public void gradeAssignment(){
-        //TODO implementation remaining
+    public static void gradeAssignment(String assignmentName, String username,float grade, Connection conn, ActiveClass activeClass){
+        int studentId = util.getStudentId(username,conn);
+        if(studentId == -1)
+            LOGGER.severe("Student does not exist");
+        else {
+            int assignmentId = util.getAssignmentId(assignmentName,activeClass.getClassID(),conn);
+            if(assignmentId == -1)
+                LOGGER.severe("Assignment does not exist");
+            else{
+                boolean isEnrolled = util.checkStudentEnrolled(studentId,activeClass.getClassID(),conn);
+                if(!isEnrolled)
+                    LOGGER.severe("Student is not enrolled in course " +activeClass.getCourseNumber());
+                else{
+                    String sqlQuery = String.format(
+                            """
+                                    INSERT INTO grades(student_id, assignment_id, grade)
+                                    VALUE (?,?,?)
+                                       ON DUPLICATE KEY UPDATE grade= ?;""");
+                    try {
+                        conn.setAutoCommit(false);
+                        PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery);
+                        preparedStatement.setInt(1, studentId);
+                        preparedStatement.setInt(2, assignmentId);
+                        preparedStatement.setFloat(3,grade);
+                        preparedStatement.setFloat(4,grade);
+                        int rowInserted = preparedStatement.executeUpdate();
+                        if (rowInserted > 0) {
+                            LOGGER.info("Grades successfully updated");
+                            conn.commit();
+                            sqlQuery = String.format(
+                                    """
+                                            SELECT g.grade,a.point_value
+                                            FROM grades g
+                                            INNER JOIN assignment a
+                                            	ON g.assignment_id = a.assignment_id
+                                                AND a.class_id = %d
+                                            WHERE g.student_id = %d
+                                                AND g.assignment_id = %d;
+                                            """
+                                    ,activeClass.getClassID()
+                                    ,studentId
+                                    ,assignmentId
+                            );
+                            Statement statement = conn.createStatement();
+                            ResultSet resultSet = statement.executeQuery(sqlQuery);
+                            resultSet.next();
+                            if(resultSet.getRow()>0 && resultSet.getFloat("grade") > resultSet.getFloat("point_value"))
+                                LOGGER.warning("Assigned grade is more than the configured points of assignment");
+                        }
+
+                    } catch (SQLException s) {
+                        throw new RuntimeException(s);
+                    }
+                }
+            }
+
+        }
     }
 
     public static void enrollStudent(int studentId, int classId, Connection conn){
@@ -124,15 +182,13 @@ public class StudentManagement {
                 statement.setInt(2, classId);
                 int rowInserted = statement.executeUpdate();
                 if (rowInserted > 0)
-                    System.out.println("Student successfully enrolled in class");
+                    LOGGER.info("Student successfully enrolled in class");
                 conn.commit();
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
         }
         else
-            System.out.println("Student already enrolled");
+            LOGGER.severe("Student already enrolled");
     }
-
-
 }

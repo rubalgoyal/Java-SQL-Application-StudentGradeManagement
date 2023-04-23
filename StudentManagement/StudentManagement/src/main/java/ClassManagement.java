@@ -118,8 +118,29 @@ public class ClassManagement {
         }
     }
 
-    public void listClasses () {
-        //TODO implementation remaining. Will implement after Student enrollment done.
+    public void listClasses (Connection conn) {
+       String sqlQuery =
+                """
+                                SELECT c.course_number, c.term, COUNT(e.student_id) AS num_students
+                                FROM class c
+                                INNER JOIN enrolled e
+                                	ON c.class_id = e.class_id
+                                GROUP BY c.course_number, c.term;
+                        """;
+       try{
+           Statement statement = conn.createStatement();
+           ResultSet resultSet = statement.executeQuery(sqlQuery);
+           System.out.println("Course Number\tTerm\tNum Enrolled Students");
+           System.out.println("------------------------------------------------------------------");
+           while (resultSet.next())
+               System.out.println(
+                       resultSet.getString("course_number") + "\t\t"
+                               + resultSet.getString("term") + "\t\t"
+                               + resultSet.getString("num_students")
+               );
+       } catch (SQLException s) {
+           throw new RuntimeException(s);
+       }
     }
 
     public void showClass () {
