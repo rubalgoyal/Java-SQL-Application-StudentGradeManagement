@@ -1,8 +1,11 @@
 plugins {
     id 'java'
+
+    // For fat-jar build including all dependencies
+    id 'com.github.johnrengelman.shadow'  version '7.1.0'
 }
 
-group 'class.grades'
+group 'org.studentmanagement'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -13,6 +16,12 @@ dependencies {
     // Other dependencies...
     implementation 'mysql:mysql-connector-java:8.0.28'
 }
+
 test {
     useJUnitPlatform()
+}
+
+// For fat-jar build including all dependencies
+shadowJar {
+    mergeServiceFiles()
 }

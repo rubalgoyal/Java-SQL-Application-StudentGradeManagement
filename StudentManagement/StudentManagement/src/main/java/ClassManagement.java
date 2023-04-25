@@ -14,7 +14,6 @@ public class ClassManagement {
             LOGGER.severe("Class already exist");
         else {
             String sqlQuery = "INSERT INTO class (course_number, term, section_number, class_description) VALUES (?,?,?,?)";
-
             try {
                 conn.setAutoCommit(false);
                 PreparedStatement statement = conn.prepareStatement(sqlQuery);
@@ -30,8 +29,6 @@ public class ClassManagement {
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
-
-
         }
     }
     public void selectClass (String courseNumber, String term, Connection conn) {
@@ -52,16 +49,15 @@ public class ClassManagement {
                 if(rowCount > 1)
                     LOGGER.warning("There are more than 1 sections please specify section also");
                 else {
+                    LOGGER.info("class selected");
                     resultSet = statement.executeQuery(sqlQuery);
                     assignActiveClass(resultSet);
-                }
 
+                }
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
-
     }
-
     public void selectClass (String courseNumber, Connection conn) {
         //TODO implement most recent
         String sqlQuery = String.format(
@@ -72,7 +68,6 @@ public class ClassManagement {
                             
                 """
                 , courseNumber
-
         );
         try {
             Statement statement = conn.createStatement();
@@ -81,17 +76,16 @@ public class ClassManagement {
             if(rowCount > 1)
                 LOGGER.warning("There are more than one courses please specify section and term also");
             else {
+                LOGGER.info("class selected");
                 resultSet = statement.executeQuery(sqlQuery);
                 assignActiveClass(resultSet);
+                LOGGER.info("class selected");
             }
 
         } catch (SQLException s) {
             throw new RuntimeException(s);
         }
-
     }
-
-
     public void selectClass (String courseNumber, String term, int sectionNumber, Connection conn) {
         boolean checkClassExist = util.checkClassExist(term, courseNumber, sectionNumber, conn);
         if (!checkClassExist)
@@ -113,13 +107,13 @@ public class ClassManagement {
                 Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
                 assignActiveClass(resultSet);
+                LOGGER.info("class selected");
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
 
         }
     }
-
     public void listClasses (Connection conn) {
        String sqlQuery =
                 """
@@ -144,7 +138,6 @@ public class ClassManagement {
            throw new RuntimeException(s);
        }
     }
-
     public void showClass () {
         if(activeClass == null)
             System.out.println("No active class at present");
@@ -157,7 +150,6 @@ public class ClassManagement {
             );
         }
     }
-
     private void assignActiveClass(ResultSet resultSet){
         try{
             if(resultSet.next()){
@@ -182,7 +174,5 @@ public class ClassManagement {
         }
 
     }
-
-
 }
 

@@ -244,7 +244,7 @@ public class util {
         return rowCount;
     }
     public static String randomAddressGenerator() {
-            String[] streets = {"Main St.", "Oak St.", "Park Ave.", "Broadway", "Maple St.", "Cedar St.", "Elm St.", "High St.", "1st St.", "2nd St."};
+            String[] streets = {"EnrollmentApp St.", "Oak St.", "Park Ave.", "Broadway", "Maple St.", "Cedar St.", "Elm St.", "High St.", "1st St.", "2nd St."};
             String[] cities = {"New York", "Los Angeles", "Chicago", "Houston", "Philadelphia", "Phoenix", "San Antonio", "San Diego", "Dallas", "San Jose"};
             String[] states = {"NY", "CA", "IL", "TX", "PA", "AZ", "TX", "CA", "TX", "CA"};
             String[] zipCodes = {"10001", "90001", "60601", "77001", "19102", "85001", "78201", "92101", "75201", "95101"};

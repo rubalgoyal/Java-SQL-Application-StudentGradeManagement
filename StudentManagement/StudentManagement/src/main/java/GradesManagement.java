@@ -109,7 +109,7 @@ public class GradesManagement {
                         ,"Total Grade"
                         ,"Total Grade Attempted"
                 );
-                System.out.println("--------------------------------------------------------------------------------------------------------------------------------------");
+                System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------");
                 while (resultSet.next()){
                     String obtainedMarks = resultSet.getFloat("obtained_marks") == 0 ? "Not Attempted": resultSet.getString("obtained_marks");
                     System.out.printf("%-25s %-25s %-15s %-15s %-15s %-25s %-15s %-25s\n"

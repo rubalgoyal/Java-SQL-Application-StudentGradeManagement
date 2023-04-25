@@ -9,28 +9,32 @@ public class CategoryAssignment {
     private static final Logger LOGGER = Logger.getLogger("Assignment Management");
 
     public static void showCategories(Connection conn , ActiveClass activeClass){
-        int classId = activeClass.getClassID();
-        String sqlQuery = String.format("""
-                             SELECT category_id, category_name, weight,class_id 
-                             FROM category
-                             WHERE class_id = %d
-                         """
-                        ,classId
+        if(activeClass == null)
+            LOGGER.severe("Please select the current class");
+        else {
+            int classId = activeClass.getClassID();
+            String sqlQuery = String.format("""
+                                SELECT category_id, category_name, weight,class_id 
+                                FROM category
+                                WHERE class_id = %d
+                            """
+                    , classId
+            );
+            try {
+                Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(sqlQuery);
+                System.out.println("Course Number\tCategory\tWeight");
+                System.out.println("------------------------------------------------------------------");
+                while (resultSet.next())
+                    System.out.println(
+                            activeClass.getCourseNumber() + "\t\t" +
+                                    resultSet.getString("category_name") + "\t\t"
+                                    + resultSet.getFloat("weight")
                     );
-        try {
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-            System.out.println("Course Number\tCategory\tWeight");
-            System.out.println("------------------------------------------------------------------");
-            while (resultSet.next())
-                System.out.println(
-                        activeClass.getCourseNumber() + "\t\t" +
-                        resultSet.getString("category_name") + "\t\t"
-                        + resultSet.getFloat("weight")
-                );
 
-        }catch (SQLException s) {
-            throw new RuntimeException(s);
+            } catch (SQLException s) {
+                throw new RuntimeException(s);
+            }
         }
 
     }
@@ -61,33 +65,38 @@ public class CategoryAssignment {
     }
 
     public static void showAssignment(ActiveClass activeClass, Connection conn){
-        //TODO clerify meaning of group by
-        String sqlQuery = String.format("""
-                SELECT c.category_name, a.assignment_name, a.point_value
-                FROM assignment a
-                JOIN category c
-                    ON a.category_id = c.category_id
-                WHERE c.class_id = %d
-                GROUP BY c.category_name, a.assignment_name, a.point_value
-                ORDER BY c.category_name;
-                """
-                ,activeClass.getClassID()
-        );
-        try {
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-            System.out.println("Course Number\tCategory\tAssignment Name\tPoint Value");
-            System.out.println("------------------------------------------------------------------");
-            while (resultSet.next())
-                System.out.println(
-                        activeClass.getCourseNumber() + "\t\t" +
-                                resultSet.getString("category_name") + "\t\t"
-                                + resultSet.getString("assignment_name") + "\t\t"
-                                + resultSet.getFloat("point_value")
-                );
+        if(activeClass == null)
+            LOGGER.severe("Please select the class");
 
-        }catch (SQLException s) {
-            throw new RuntimeException(s);
+        //TODO clerify meaning of group by
+        else {
+            String sqlQuery = String.format("""
+                            SELECT c.category_name, a.assignment_name, a.point_value
+                            FROM assignment a
+                            JOIN category c
+                                ON a.category_id = c.category_id
+                            WHERE c.class_id = %d
+                            GROUP BY c.category_name, a.assignment_name, a.point_value
+                            ORDER BY c.category_name;
+                            """
+                    , activeClass.getClassID()
+            );
+            try {
+                Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(sqlQuery);
+                System.out.println("Course Number\tCategory\tAssignment Name\tPoint Value");
+                System.out.println("------------------------------------------------------------------");
+                while (resultSet.next())
+                    System.out.println(
+                            activeClass.getCourseNumber() + "\t\t" +
+                                    resultSet.getString("category_name") + "\t\t"
+                                    + resultSet.getString("assignment_name") + "\t\t"
+                                    + resultSet.getFloat("point_value")
+                    );
+
+            } catch (SQLException s) {
+                throw new RuntimeException(s);
+            }
         }
 
     }

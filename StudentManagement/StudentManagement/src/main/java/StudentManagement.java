@@ -55,57 +55,65 @@ public class StudentManagement {
     }
 
     public static void showStudents(ActiveClass activeClass, Connection conn){
+        if(activeClass == null)
+            System.out.println("Please select the current class");
+        else {
             String sqlQuery = String.format("""
-                        SELECT s.student_id, s.username, s.first_name,s.last_name FROM student s
-                        JOIN enrolled e
-                            ON s.student_id = e.student_id
-                            WHERE class_id = %d"""
-                        ,activeClass.getClassID()
-                    );
+                            SELECT s.student_id, s.username, s.first_name,s.last_name FROM student s
+                            JOIN enrolled e
+                                ON s.student_id = e.student_id
+                                WHERE class_id = %d"""
+                    , activeClass.getClassID()
+            );
             try {
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
+                Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(sqlQuery);
                 System.out.println("Student ID\tUsername\tFirst Name\tLast Name");
                 System.out.println("------------------------------------------------------------------");
                 while (resultSet.next())
                     System.out.println(
 
-                                    resultSet.getInt("student_id") + "\t\t"
+                            resultSet.getInt("student_id") + "\t\t"
                                     + resultSet.getString("username") + "\t\t"
                                     + resultSet.getString("first_name") + "\t\t"
-                                    +resultSet.getString("last_name")
+                                    + resultSet.getString("last_name")
                     );
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
+        }
     }
 
     public static void showStudents(String lookupName,ActiveClass activeClass, Connection conn){
-        String search = "%" + lookupName.toLowerCase() + "%";
-        String sqlQuery = String.format("""
-                        SELECT s.student_id, s.username, s.first_name,s.last_name FROM student s
-                        JOIN enrolled e
-                            ON s.student_id = e.student_id
-                            WHERE class_id = %d
-                            AND LOWER(s.username) LIKE '%s'
-                        """
-                ,activeClass.getClassID()
-                ,search
-        );
-        try {
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-            System.out.println("Student ID\tUsername\tFirst Name\tLast Name");
-            System.out.println("------------------------------------------------------------------");
-            while (resultSet.next())
-                System.out.println(
-                        resultSet.getInt("student_id") + "\t\t"
-                                + resultSet.getString("username") + "\t\t"
-                                + resultSet.getString("first_name") + "\t\t"
-                                +resultSet.getString("last_name")
-                );
-        } catch (SQLException s) {
-            throw new RuntimeException(s);
+        if(activeClass == null)
+            LOGGER.severe("Please select the current class");
+        else {
+            String search = "%" + lookupName.toLowerCase() + "%";
+            String sqlQuery = String.format("""
+                            SELECT s.student_id, s.username, s.first_name,s.last_name FROM student s
+                            JOIN enrolled e
+                                ON s.student_id = e.student_id
+                                WHERE class_id = %d
+                                AND LOWER(s.username) LIKE '%s'
+                            """
+                    , activeClass.getClassID()
+                    , search
+            );
+            try {
+                Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(sqlQuery);
+                System.out.println("Student ID\tUsername\tFirst Name\tLast Name");
+                System.out.println("------------------------------------------------------------------");
+                while (resultSet.next())
+                    System.out.println(
+                            resultSet.getInt("student_id") + "\t\t"
+                                    + resultSet.getString("username") + "\t\t"
+                                    + resultSet.getString("first_name") + "\t\t"
+                                    + resultSet.getString("last_name")
+                    );
+            } catch (SQLException s) {
+                throw new RuntimeException(s);
+            }
         }
     }
 
