@@ -17,7 +17,7 @@ public class Main {
 //        classManagement.newClass("CS510","Sp23",2,"Database",conn);
 //        classManagement.newClass("CS550","Sp23",2,"Operating System",conn);
 //        classManagement.selectClass("CS410",  conn);
-          classManagement.selectClass("CS510", "Fall23", conn);
+          classManagement.selectClass("CS510", "Sp23", conn);
 //        classManagement.showClass();
 //        CategoryAssignment.addCategory("Assignments", 0.15f, conn,classManagement.activeClass);
 //        CategoryAssignment.showCategories(conn, classManagement.activeClass);
@@ -31,10 +31,11 @@ public class Main {
 //          StudentManagement.addStudent("bobalex09", 6,"Bob","Alex",conn,classManagement.activeClass);
 //          StudentManagement.addStudent("smithblack09", 7,"Black","Smith",conn,classManagement.activeClass);
 
-            classManagement.listClasses(conn);
-            StudentManagement.gradeAssignment("Homework-1","johnsmith01", 62.5f,conn,classManagement.activeClass);
+//            classManagement.listClasses(conn);
+//            StudentManagement.gradeAssignment("Homework-1","johnsmith01", 62.5f,conn,classManagement.activeClass);
 
 //            StudentManagement.showStudents(classManagement.activeClass,conn);
+        GradesManagement.studentGrades("johnsmith01",classManagement.activeClass,conn);
 
 
     }

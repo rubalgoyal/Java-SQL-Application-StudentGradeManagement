@@ -3,8 +3,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
 public class CategoryAssignment {
+    private static final Logger LOGGER = Logger.getLogger("Assignment Management");
 
     public static void showCategories(Connection conn , ActiveClass activeClass){
         int classId = activeClass.getClassID();
@@ -46,7 +48,7 @@ public class CategoryAssignment {
                 statement.setInt(3, classId);
                 int rowInserted = statement.executeUpdate();
                 if (rowInserted > 0)
-                    System.out.println("New category successfully inserted");
+                    LOGGER.info("New category successfully inserted");
                 conn.commit();
 
             } catch (SQLException s) {
@@ -54,7 +56,7 @@ public class CategoryAssignment {
             }
         }
         else
-            System.out.println("Category already exist for the selected course number " + activeClass.getCourseNumber());
+            LOGGER.severe("Category already exist for the selected course number " + activeClass.getCourseNumber());
 
     }
 
@@ -107,17 +109,17 @@ public class CategoryAssignment {
                     statement.setInt(5,categoryId);
                     int rowInserted = statement.executeUpdate();
                     if (rowInserted > 0)
-                        System.out.println("New assignment successfully inserted");
+                        LOGGER.info("New assignment successfully inserted");
                     conn.commit();
                 } catch (SQLException s) {
                     throw new RuntimeException(s);
                 }
             }
             else
-                System.out.println("This assignment name already exist for the given category");
+                LOGGER.severe("This assignment name already exist for the given category");
         }
         else
-            System.out.println("Given category does not exist for course " + activeClass.getCourseNumber());
+            LOGGER.severe("Given category does not exist for course " + activeClass.getCourseNumber());
     }
 
 }

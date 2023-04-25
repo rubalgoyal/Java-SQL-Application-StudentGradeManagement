@@ -1,15 +1,17 @@
 import jdk.jshell.spi.ExecutionControl;
 
 import java.sql.*;
+import java.util.logging.Logger;
 
 public class ClassManagement {
+    private final Logger LOGGER = Logger.getLogger("Class Management");
 
     public ActiveClass activeClass = null;
 
     public  void newClass(String courseNumber, String term, int sectionNumber, String classDescription, Connection conn) {
         boolean checkClassExist = util.checkClassExist(term, courseNumber, sectionNumber, conn);
         if (checkClassExist)
-            System.out.println("Class already exist");
+            LOGGER.severe("Class already exist");
         else {
             String sqlQuery = "INSERT INTO class (course_number, term, section_number, class_description) VALUES (?,?,?,?)";
 
@@ -22,7 +24,7 @@ public class ClassManagement {
                 statement.setString(4, classDescription);
                 int rowInserted = statement.executeUpdate();
                 if (rowInserted > 0)
-                    System.out.println("New class successfully inserted");
+                    LOGGER.info("New class successfully inserted");
                 conn.commit();
 
             } catch (SQLException s) {
@@ -48,7 +50,7 @@ public class ClassManagement {
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
                 int rowCount = util.getNumRows(resultSet);
                 if(rowCount > 1)
-                    System.out.println("There are more than 1 sections please specify section also");
+                    LOGGER.warning("There are more than 1 sections please specify section also");
                 else {
                     resultSet = statement.executeQuery(sqlQuery);
                     assignActiveClass(resultSet);
@@ -77,7 +79,7 @@ public class ClassManagement {
             ResultSet resultSet = statement.executeQuery(sqlQuery);
             int rowCount = util.getNumRows(resultSet);
             if(rowCount > 1)
-                System.out.println("There are more than one courses please specify section and term also");
+                LOGGER.warning("There are more than one courses please specify section and term also");
             else {
                 resultSet = statement.executeQuery(sqlQuery);
                 assignActiveClass(resultSet);
@@ -93,7 +95,7 @@ public class ClassManagement {
     public void selectClass (String courseNumber, String term, int sectionNumber, Connection conn) {
         boolean checkClassExist = util.checkClassExist(term, courseNumber, sectionNumber, conn);
         if (!checkClassExist)
-            System.out.println("Class does not exist, Please enter correct class or create");
+            LOGGER.severe("Class does not exist, Please enter correct class or create");
         else{
             String sqlQuery = String.format(
                     """

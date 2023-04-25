@@ -99,7 +99,6 @@ public class StudentManagement {
             System.out.println("------------------------------------------------------------------");
             while (resultSet.next())
                 System.out.println(
-
                         resultSet.getInt("student_id") + "\t\t"
                                 + resultSet.getString("username") + "\t\t"
                                 + resultSet.getString("first_name") + "\t\t"
