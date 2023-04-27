@@ -28,7 +28,9 @@ The `ClassManagement.java` class contains all the methods to create and manage t
 
 The `CategoryAssignment.java` class in Java provides methods for managing categories and assignments associated with a class. The functionalities of the class to add new categories to the database for a specific class if it doesn't already exist, based on the provided category name and weight. The `showAssignment` and `showCategories` methods display the categories and assignment of a given class by retrieving them from the database. 
 
-The `StudentManagement.java` class contains methods to manage the studnets. The class contains the functionalities to add and enroll studnets in the class with different parameters, assign the grades to students in assignments. 
+The `StudentManagement.java` class contains methods to manage the studnets. The class contains the functionalities to add students if not already exist in database and enroll studnets in the class, if students are not enrolled in the class. The `gradeAssignment` method assigned the grades to students for the assignment after verify that if student is enrolled in that course or not. 
+
+
 
 
 
