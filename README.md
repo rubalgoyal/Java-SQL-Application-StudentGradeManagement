@@ -18,3 +18,10 @@ Database schema StudentEnrollment contains following tabels:
 
 `enrolled`: Tracks the enrollment of students in classes. It includes the studnet ID, class ID, serving as the many to many relationship table between student and class.
 
+### Implementation
+
+The `util.java` class contains all the methods such as `getCategoryId`, `checkStudentEnrolled`, `checkStudentExist`, `getCategoryId` etc. which helps to check the existence of students, categories assignments in database.
+
+The `ClassManagement` class contains all the methods to create and manage the class. The functionalities of class management are `newClass`, 
+
+
