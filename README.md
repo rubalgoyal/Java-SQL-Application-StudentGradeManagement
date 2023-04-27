@@ -26,7 +26,7 @@ The `ActiveClass` class stores all the attributes of the currentclass and provid
 
 The `ClassManagement` class contains all the methods to create and manage the class. The functionalities of class management are `newClass`, `selectClass` with different parameters and `assignActiveClass` stores the result of selected class.
 
-The `CategoryAssignmentManagement` class contains the methods to add the categories with their weight and associated with specific class 
+The `CategoryAssignmentManagement` class contains the methods to add the categories with their weight and associated with specific class. Each assiggment
 
 The `StudentManagement` class contains methods to manage the studnets. The class contains the functionalities to add and enroll studnets in the class with different parameters, assign the grades to students in assignments. 
 
