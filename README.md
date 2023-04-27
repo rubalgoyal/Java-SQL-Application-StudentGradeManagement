@@ -22,6 +22,14 @@ Database schema StudentEnrollment contains following tabels:
 
 The `util.java` class contains all the methods such as `getCategoryId`, `checkStudentEnrolled`, `checkStudentExist`, `getCategoryId` etc. which helps to check the existence of students, categories assignments in database.
 
-The `ClassManagement` class contains all the methods to create and manage the class. The functionalities of class management are `newClass`, 
+The `ActiveClass` class stores all the attributes of the currentclass and provides getter and setter methods of each attribute.
+
+The `ClassManagement` class contains all the methods to create and manage the class. The functionalities of class management are `newClass`, `selectClass` with different parameters and assignActiveClass stores the result of selected class.
+
+The `StudentManagement` class contains methods to manage the studnets. The class contains the functionalities to add and enroll studnets in the class with different parameters, assign the grades to students in assignments. 
+
+ 
+
+
 
 
