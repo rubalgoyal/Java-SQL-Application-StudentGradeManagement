@@ -22,13 +22,13 @@ Database schema StudentEnrollment contains following tabels:
 
 The `util.java` class contains all the methods such as `getCategoryId`, `checkStudentEnrolled`, `checkStudentExist`, `getCategoryId` etc. which helps to check the existence of students, categories assignments in database.
 
-The `ActiveClass` class stores all the attributes of the currentclass and provides getter and setter methods of each attribute.
+The `ActiveClass.java` class stores all the attributes of the currentclass and provides getter and setter methods of each attribute.
 
-The `ClassManagement` class contains all the methods to create and manage the class. The functionalities of class management are `newClass`, `selectClass` with different parameters and `assignActiveClass` stores the result of selected class.
+The `ClassManagement.java` class contains all the methods to create and manage the class. The functionalities of class management are `newClass`to the database if it doesn't already exist, `selectClass` with different parameters and `assignActiveClass` stores the result of selected class.
 
-The `CategoryAssignmentManagement` class contains the methods to add the categories with their weight and associated with specific class. Each assiggment
+The `CategoryAssignment.java` class in Java provides methods for managing categories and assignments associated with a class. The functionalities of the class to add new categories to the database for a specific class if it doesn't already exist, based on the provided category name and weight. The `showAssignment` and `showCategories` methods display the categories and assignment of a given class by retrieving them from the database. 
 
-The `StudentManagement` class contains methods to manage the studnets. The class contains the functionalities to add and enroll studnets in the class with different parameters, assign the grades to students in assignments. 
+The `StudentManagement.java` class contains methods to manage the studnets. The class contains the functionalities to add and enroll studnets in the class with different parameters, assign the grades to students in assignments. 
 
 
 
