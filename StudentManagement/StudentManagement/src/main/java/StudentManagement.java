@@ -5,11 +5,36 @@ import java.util.logging.Logger;
 public class StudentManagement {
     private static final Logger LOGGER = Logger.getLogger("Student Management");
 
-    public static void addStudent(String userName, int studentId, String firstName, String lastName, Connection conn, ActiveClass activeClass){
-        boolean isStudentIdExist = util.checkStudentExist(studentId, userName,conn);
+    public static void addStudent(String userName, int studentId, String studentName, Connection conn, ActiveClass activeClass){
+        boolean isStudentIdExist = util.checkStudentExist(studentId, conn);
         int classId = activeClass.getClassID();
+        String sqlQuery;
         if(isStudentIdExist) {
-            LOGGER.info("Student already exist, enrolling the student in class");
+            LOGGER.info("Checking and updating the student name");
+            sqlQuery = String.format(
+                                    """
+                                        UPDATE student 
+                                        SET  
+                                            student_name = ?           
+                                            WHERE student_id = ?
+                            
+                                    """
+
+            );
+            try {
+                String emailAddress = userName + "@u.xyz.edu";
+                conn.setAutoCommit(false);
+                PreparedStatement statement = conn.prepareStatement(sqlQuery);
+                statement.setString(1,studentName);
+                statement.setInt(2, studentId);
+                int rowUpdated = statement.executeUpdate();
+                if (rowUpdated > 0)
+                    LOGGER.info("Student information updated successfully");
+                conn.commit();
+                enrollStudent(studentId,classId,conn);
+            } catch (SQLException s) {
+                throw new RuntimeException(s);
+            }
             enrollStudent(studentId, classId, conn);
         }
         else{
@@ -18,17 +43,16 @@ public class StudentManagement {
             long randomNumber = 1000000000L + random.nextInt(900000000);
             String contactNumber = String.valueOf(randomNumber);
             String address = util.randomAddressGenerator();
-            String sqlQuery = String.format(
+            sqlQuery = String.format(
                             """
-                            INSERT INTO student (student_id, username, first_name,last_name,email_address,contact_number, address)
+                            INSERT INTO student (student_id, username,name,email_address,contact_number, address)
                             VALUES(?,?,?,?,?,?,?)""");
             try {
                 conn.setAutoCommit(false);
                 PreparedStatement statement = conn.prepareStatement(sqlQuery);
                 statement.setInt(1, studentId);
                 statement.setString(2, userName);
-                statement.setString(3, firstName);
-                statement.setString(4,lastName);
+                statement.setString(3, studentName);
                 statement.setString(5,emailAddress);
                 statement.setString(6,contactNumber);
                 statement.setString(7,address);
@@ -37,11 +61,10 @@ public class StudentManagement {
                 if (rowInserted > 0)
                     LOGGER.info("New student successfully inserted");
                 conn.commit();
+                enrollStudent(studentId,classId,conn);
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
-            enrollStudent(studentId,classId,conn);
-
         }
     }
     public static void addStudent(String userName, Connection conn, ActiveClass activeClass){
@@ -90,7 +113,7 @@ public class StudentManagement {
         else {
             String search = "%" + lookupName.toLowerCase() + "%";
             String sqlQuery = String.format("""
-                            SELECT s.student_id, s.username, s.first_name,s.last_name FROM student s
+                            SELECT s.student_id, s.username, s.student_name FROM student s
                             JOIN enrolled e
                                 ON s.student_id = e.student_id
                                 WHERE class_id = %d
@@ -108,8 +131,7 @@ public class StudentManagement {
                     System.out.println(
                             resultSet.getInt("student_id") + "\t\t"
                                     + resultSet.getString("username") + "\t\t"
-                                    + resultSet.getString("first_name") + "\t\t"
-                                    + resultSet.getString("last_name")
+                                    + resultSet.getString("student_name")
                     );
             } catch (SQLException s) {
                 throw new RuntimeException(s);

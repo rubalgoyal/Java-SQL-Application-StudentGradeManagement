@@ -68,7 +68,6 @@ public class CategoryAssignment {
         if(activeClass == null)
             LOGGER.severe("Please select the class");
 
-        //TODO clerify meaning of group by
         else {
             String sqlQuery = String.format("""
                             SELECT c.category_name, a.assignment_name, a.point_value

@@ -96,6 +96,7 @@ public class GradesManagement {
             try {
                 Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
+                System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------");
                 System.out.println("Student Username: "+ username);
                 System.out.println("Course Number: "+ activeClass.getCourseNumber());
                 System.out.println("Term: " + activeClass.getTerm());
@@ -131,7 +132,99 @@ public class GradesManagement {
         }
     }
 
-    public void gradeBook(){
-        //TODO implementation remaining
+    public static void gradeBook(ActiveClass activeClass, Connection conn){
+
+        String sqlQuery = String.format(
+                """
+                         WITH marks_calculation AS (
+                                SELECT s.student_id, s.username, c.course_number, c.term, ct.category_name, a.assignment_name, ct.weight, a.point_value overall_total_marks,
+                                       CASE
+                                            WHEN g.grade IS NULL
+                                                THEN NULL
+                                            ELSE
+                                                a.point_value
+                                        END attempted_total_marks,
+                                        g.grade
+                                FROM student s
+                                INNER JOIN enrolled e
+                                    ON s.student_id = e.student_id
+                                INNER JOIN class c
+                                    ON e.class_id = c.class_id
+                                INNER JOIN category ct
+                                    ON ct.class_id = c.class_id
+                                INNER JOIN assignment a
+                                    ON a.category_id = ct.category_id
+                                    AND a.class_id = e.class_id
+                                LEFT JOIN grades g
+                                    ON g.student_id = s.student_id
+                                    ANd g.assignment_id = a.assignment_id
+                                WHERE c.class_id = %d
+                        ),
+                        agg_mark_calculation AS (
+                                SELECT student_id, username, course_number,term, category_name,weight,
+                                       SUM(COALESCE(grade,0)) total_marks_obtained,
+                                         SUM(overall_total_marks) total_marks,
+                                         SUM(COALESCE(attempted_total_marks,0)) total_marks_attempted
+                                  FROM marks_calculation
+                                  GROUP BY student_id, username, course_number,term, category_name,weight
+                        ),
+                         cat_grade_calculate AS (
+                                SELECT student_id, username, course_number, term, category_name,
+                                       ROUND(weight*100,0) max_grade,
+                                       CASE
+                                            WHEN total_marks_obtained = 0
+                                                THEN 0
+                                            ELSE
+                                                ROUND(weight*100,0)
+                                       END attempted_max_grade,
+                                       ROUND(total_marks_obtained*100*weight/total_marks,2) overall_grade,
+                                       CASE
+                                            WHEN total_marks_obtained = 0
+                                                THEN 0
+                                            ELSE
+                                                ROUND(total_marks_obtained*weight*100/total_marks_attempted, 2)
+                                       END attempted_grade
+                                FROM agg_mark_calculation
+                        )
+                        
+                      SELECT student_id, username, course_number, term,
+                           ROUND(SUM(overall_grade),2) class_grade,
+                             CASE
+                                WHEN SUM(attempted_grade) = 0
+                                    THEN 0
+                                ELSE
+                                        ROUND(SUM(attempted_grade)*100/SUM(attempted_max_grade),2)
+                          END attempted_class_grade
+                      FROM cat_grade_calculate
+                      GROUP BY student_id, username, course_number, term;
+                """
+                ,activeClass.getClassID()
+        );
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+            System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------");
+            System.out.println("Course Number: "+ activeClass.getCourseNumber());
+            System.out.println("Term: " + activeClass.getTerm());
+            System.out.printf("%-25s %-25s %-15s %-15s\n"
+                    ,"Student ID"
+                    ,"Username"
+                    ,"Overall Grade"
+                    ,"Attempted Grade"
+            );
+            System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------");
+            while (resultSet.next()){
+                System.out.printf("%-25s %-25s %-15s %-15s\n"
+                        ,resultSet.getInt("student_id")
+                        ,resultSet.getString("username")
+                        ,resultSet.getFloat("class_grade")
+                        ,resultSet.getFloat("attempted_class_grade")
+                );
+
+            }
+
+        } catch (SQLException s) {
+            throw new RuntimeException(s);
+        }
     }
 }

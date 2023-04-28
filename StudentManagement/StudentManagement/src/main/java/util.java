@@ -206,6 +206,29 @@ public class util {
         return isExist;
     }
 
+    public static boolean checkStudentExist(int studentId,Connection conn){
+        String sqlQuery = String.format(
+                """
+               SELECT COUNT(*) FROM student
+               WHERE student_id = %d
+                 
+               """
+                ,studentId
+        );
+        boolean isExist = false;
+        try{
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(sqlQuery);
+            rs.next();
+            int numRows = rs.getInt(1);
+            isExist = numRows > 0;
+
+        } catch (SQLException s){
+            throw new RuntimeException(s);
+        }
+        return isExist;
+    }
+
     public static boolean checkStudentEnrolled(int studentId, int classId,Connection conn){
         String sqlQuery = String.format(
                         """
