@@ -3,38 +3,32 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 
 public class CategoryAssignment {
-    private static final Logger LOGGER = Logger.getLogger("Assignment Management");
 
     public static void showCategories(Connection conn , ActiveClass activeClass){
-        if(activeClass == null)
-            LOGGER.severe("Please select the current class");
-        else {
-            int classId = activeClass.getClassID();
-            String sqlQuery = String.format("""
-                                SELECT category_id, category_name, weight,class_id 
-                                FROM category
-                                WHERE class_id = %d
-                            """
-                    , classId
-            );
-            try {
-                Statement statement = conn.createStatement();
-                ResultSet resultSet = statement.executeQuery(sqlQuery);
-                System.out.println("Course Number\tCategory\tWeight");
-                System.out.println("------------------------------------------------------------------");
-                while (resultSet.next())
-                    System.out.println(
-                            activeClass.getCourseNumber() + "\t\t" +
-                                    resultSet.getString("category_name") + "\t\t"
-                                    + resultSet.getFloat("weight")
+        int classId = activeClass.getClassID();
+        String sqlQuery = String.format("""
+                             SELECT category_id, category_name, weight,class_id 
+                             FROM category
+                             WHERE class_id = %d
+                         """
+                        ,classId
                     );
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+            System.out.println("Course Number\tCategory\tWeight");
+            System.out.println("------------------------------------------------------------------");
+            while (resultSet.next())
+                System.out.println(
+                        activeClass.getCourseNumber() + "\t\t" +
+                        resultSet.getString("category_name") + "\t\t"
+                        + resultSet.getFloat("weight")
+                );
 
-            } catch (SQLException s) {
-                throw new RuntimeException(s);
-            }
+        }catch (SQLException s) {
+            throw new RuntimeException(s);
         }
 
     }
@@ -52,7 +46,7 @@ public class CategoryAssignment {
                 statement.setInt(3, classId);
                 int rowInserted = statement.executeUpdate();
                 if (rowInserted > 0)
-                    LOGGER.info("New category successfully inserted");
+                    System.out.println("New category successfully inserted");
                 conn.commit();
 
             } catch (SQLException s) {
@@ -60,42 +54,38 @@ public class CategoryAssignment {
             }
         }
         else
-            LOGGER.severe("Category already exist for the selected course number " + activeClass.getCourseNumber());
+            System.out.println("Category already exist for the selected course number " + activeClass.getCourseNumber());
 
     }
 
     public static void showAssignment(ActiveClass activeClass, Connection conn){
-        if(activeClass == null)
-            LOGGER.severe("Please select the class");
+        //TODO clerify meaning of group by
+        String sqlQuery = String.format("""
+                SELECT c.category_name, a.assignment_name, a.point_value
+                FROM assignment a
+                JOIN category c
+                    ON a.category_id = c.category_id
+                WHERE c.class_id = %d
+                GROUP BY c.category_name, a.assignment_name, a.point_value
+                ORDER BY c.category_name;
+                """
+                ,activeClass.getClassID()
+        );
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+            System.out.println("Course Number\tCategory\tAssignment Name\tPoint Value");
+            System.out.println("------------------------------------------------------------------");
+            while (resultSet.next())
+                System.out.println(
+                        activeClass.getCourseNumber() + "\t\t" +
+                                resultSet.getString("category_name") + "\t\t"
+                                + resultSet.getString("assignment_name") + "\t\t"
+                                + resultSet.getFloat("point_value")
+                );
 
-        else {
-            String sqlQuery = String.format("""
-                            SELECT c.category_name, a.assignment_name, a.point_value
-                            FROM assignment a
-                            JOIN category c
-                                ON a.category_id = c.category_id
-                            WHERE c.class_id = %d
-                            GROUP BY c.category_name, a.assignment_name, a.point_value
-                            ORDER BY c.category_name;
-                            """
-                    , activeClass.getClassID()
-            );
-            try {
-                Statement statement = conn.createStatement();
-                ResultSet resultSet = statement.executeQuery(sqlQuery);
-                System.out.println("Course Number\tCategory\tAssignment Name\tPoint Value");
-                System.out.println("------------------------------------------------------------------");
-                while (resultSet.next())
-                    System.out.println(
-                            activeClass.getCourseNumber() + "\t\t" +
-                                    resultSet.getString("category_name") + "\t\t"
-                                    + resultSet.getString("assignment_name") + "\t\t"
-                                    + resultSet.getFloat("point_value")
-                    );
-
-            } catch (SQLException s) {
-                throw new RuntimeException(s);
-            }
+        }catch (SQLException s) {
+            throw new RuntimeException(s);
         }
 
     }
@@ -117,17 +107,17 @@ public class CategoryAssignment {
                     statement.setInt(5,categoryId);
                     int rowInserted = statement.executeUpdate();
                     if (rowInserted > 0)
-                        LOGGER.info("New assignment successfully inserted");
+                        System.out.println("New assignment successfully inserted");
                     conn.commit();
                 } catch (SQLException s) {
                     throw new RuntimeException(s);
                 }
             }
             else
-                LOGGER.severe("This assignment name already exist for the given category");
+                System.out.println("This assignment name already exist for the given category");
         }
         else
-            LOGGER.severe("Given category does not exist for course " + activeClass.getCourseNumber());
+            System.out.println("Given category does not exist for course " + activeClass.getCourseNumber());
     }
 
 }

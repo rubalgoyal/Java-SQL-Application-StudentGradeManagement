@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.Random;
 public class util {
     private static String getConnectionString(String hostName, int port, String dbName){
         String connString = String.format("jdbc:mysql://%s:%d/%s?verifyServerCertificate=false&useSSL=true", hostName,port,dbName);
@@ -107,54 +106,6 @@ public class util {
 
     }
 
-    public static int getStudentId(String userName, Connection conn){
-        String sqlQuery = String.format("""
-                    SELECT student_id FROM student 
-                    WHERE  username = '%s'; """
-                ,userName
-        );
-        int studentId;
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-            resultSet.next();
-            if(resultSet.getRow() == 0)
-                studentId = -1;
-            else
-                studentId = resultSet.getInt("student_id");
-
-        }catch (SQLException s){
-            throw new RuntimeException(s);
-        }
-        return studentId;
-    }
-    public static int getAssignmentId(String assignmentName, int classId,Connection conn){
-        String sqlQuery = String.format(
-                """
-                        SELECT assignment_id 
-                        FROM assignment
-                        WHERE assignment_name = '%s'
-                            AND class_id = %d;
-                        """
-                ,assignmentName
-                ,classId
-        );
-        int assignmentId;
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-            resultSet.next();
-            if(resultSet.getRow() == 0)
-                assignmentId = -1;
-            else
-                assignmentId = resultSet.getInt("assignment_id");
-
-        }catch (SQLException s){
-            throw new RuntimeException(s);
-        }
-        return assignmentId;
-    }
-
     public static boolean checkAssignmentExist(int categoryId, int classId,String assignmentName, Connection conn){
         String sqlQuery = String.format("""
                     SELECT COUNT(*) FROM assignment 
@@ -166,78 +117,6 @@ public class util {
                 ,classId
                 ,categoryId
                 ,assignmentName
-        );
-        boolean isExist = false;
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(sqlQuery);
-            rs.next();
-            int numRows = rs.getInt(1);
-            isExist = numRows > 0;
-
-        } catch (SQLException s){
-            throw new RuntimeException(s);
-        }
-        return isExist;
-    }
-
-    public static boolean checkStudentExist(int studentId,String userName,Connection conn){
-        String sqlQuery = String.format(
-                       """
-                      SELECT COUNT(*) FROM student
-                      WHERE student_id = %d
-                        AND username = '%s'
-                        
-                      """
-                ,studentId
-                ,userName
-        );
-        boolean isExist = false;
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(sqlQuery);
-            rs.next();
-            int numRows = rs.getInt(1);
-            isExist = numRows > 0;
-
-        } catch (SQLException s){
-            throw new RuntimeException(s);
-        }
-        return isExist;
-    }
-
-    public static boolean checkStudentExist(int studentId,Connection conn){
-        String sqlQuery = String.format(
-                """
-               SELECT COUNT(*) FROM student
-               WHERE student_id = %d
-                 
-               """
-                ,studentId
-        );
-        boolean isExist = false;
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(sqlQuery);
-            rs.next();
-            int numRows = rs.getInt(1);
-            isExist = numRows > 0;
-
-        } catch (SQLException s){
-            throw new RuntimeException(s);
-        }
-        return isExist;
-    }
-
-    public static boolean checkStudentEnrolled(int studentId, int classId,Connection conn){
-        String sqlQuery = String.format(
-                        """
-                        SELECT COUNT(*) From enrolled
-                        WHERE student_id = %d
-                            AND class_id = %d
-                        """
-                ,studentId
-                ,classId
         );
         boolean isExist = false;
         try{
@@ -266,19 +145,7 @@ public class util {
 
         return rowCount;
     }
-    public static String randomAddressGenerator() {
-            String[] streets = {"EnrollmentApp St.", "Oak St.", "Park Ave.", "Broadway", "Maple St.", "Cedar St.", "Elm St.", "High St.", "1st St.", "2nd St."};
-            String[] cities = {"New York", "Los Angeles", "Chicago", "Houston", "Philadelphia", "Phoenix", "San Antonio", "San Diego", "Dallas", "San Jose"};
-            String[] states = {"NY", "CA", "IL", "TX", "PA", "AZ", "TX", "CA", "TX", "CA"};
-            String[] zipCodes = {"10001", "90001", "60601", "77001", "19102", "85001", "78201", "92101", "75201", "95101"};
-            Random random = new Random();
-            String street = streets[random.nextInt(streets.length)];
-            String city = cities[random.nextInt(cities.length)];
-            String state = states[random.nextInt(states.length)];
-            String zipCode = zipCodes[random.nextInt(zipCodes.length)];
-            return street + "," + city + "," + state+ "," +zipCode;
 
-    }
 
 }
 

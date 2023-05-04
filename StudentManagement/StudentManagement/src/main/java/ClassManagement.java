@@ -1,19 +1,18 @@
 import jdk.jshell.spi.ExecutionControl;
 
 import java.sql.*;
-import java.util.logging.Logger;
 
 public class ClassManagement {
-    private final Logger LOGGER = Logger.getLogger("Class Management");
 
     public ActiveClass activeClass = null;
 
     public  void newClass(String courseNumber, String term, int sectionNumber, String classDescription, Connection conn) {
         boolean checkClassExist = util.checkClassExist(term, courseNumber, sectionNumber, conn);
         if (checkClassExist)
-            LOGGER.severe("Class already exist");
+            System.out.println("Class already exist");
         else {
             String sqlQuery = "INSERT INTO class (course_number, term, section_number, class_description) VALUES (?,?,?,?)";
+
             try {
                 conn.setAutoCommit(false);
                 PreparedStatement statement = conn.prepareStatement(sqlQuery);
@@ -23,12 +22,14 @@ public class ClassManagement {
                 statement.setString(4, classDescription);
                 int rowInserted = statement.executeUpdate();
                 if (rowInserted > 0)
-                    LOGGER.info("New class successfully inserted");
+                    System.out.println("New class successfully inserted");
                 conn.commit();
 
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
+
+
         }
     }
     public void selectClass (String courseNumber, String term, Connection conn) {
@@ -47,17 +48,18 @@ public class ClassManagement {
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
                 int rowCount = util.getNumRows(resultSet);
                 if(rowCount > 1)
-                    LOGGER.warning("There are more than 1 sections please specify section also");
+                    System.out.println("There are more than 1 sections please specify section also");
                 else {
-                    LOGGER.info("class selected");
                     resultSet = statement.executeQuery(sqlQuery);
                     assignActiveClass(resultSet);
-
                 }
+
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
+
     }
+
     public void selectClass (String courseNumber, Connection conn) {
         //TODO implement most recent
         String sqlQuery = String.format(
@@ -68,28 +70,30 @@ public class ClassManagement {
                             
                 """
                 , courseNumber
+
         );
         try {
             Statement statement = conn.createStatement();
             ResultSet resultSet = statement.executeQuery(sqlQuery);
             int rowCount = util.getNumRows(resultSet);
             if(rowCount > 1)
-                LOGGER.warning("There are more than one courses please specify section and term also");
+                System.out.println("There are more than one courses please specify section and term also");
             else {
-                LOGGER.info("class selected");
                 resultSet = statement.executeQuery(sqlQuery);
                 assignActiveClass(resultSet);
-                LOGGER.info("class selected");
             }
 
         } catch (SQLException s) {
             throw new RuntimeException(s);
         }
+
     }
+
+
     public void selectClass (String courseNumber, String term, int sectionNumber, Connection conn) {
         boolean checkClassExist = util.checkClassExist(term, courseNumber, sectionNumber, conn);
         if (!checkClassExist)
-            LOGGER.severe("Class does not exist, Please enter correct class or create");
+            System.out.println("Class does not exist, Please enter correct class or create");
         else{
             String sqlQuery = String.format(
                     """
@@ -107,37 +111,19 @@ public class ClassManagement {
                 Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
                 assignActiveClass(resultSet);
-                LOGGER.info("class selected");
             } catch (SQLException s) {
                 throw new RuntimeException(s);
             }
 
         }
+
+        //TODO will need overrides
     }
-    public void listClasses (Connection conn) {
-       String sqlQuery =
-                """
-                                SELECT c.course_number, c.term, COUNT(e.student_id) AS num_students
-                                FROM class c
-                                INNER JOIN enrolled e
-                                	ON c.class_id = e.class_id
-                                GROUP BY c.course_number, c.term;
-                        """;
-       try{
-           Statement statement = conn.createStatement();
-           ResultSet resultSet = statement.executeQuery(sqlQuery);
-           System.out.println("Course Number\tTerm\tNum Enrolled Students");
-           System.out.println("------------------------------------------------------------------");
-           while (resultSet.next())
-               System.out.println(
-                       resultSet.getString("course_number") + "\t\t"
-                               + resultSet.getString("term") + "\t\t"
-                               + resultSet.getString("num_students")
-               );
-       } catch (SQLException s) {
-           throw new RuntimeException(s);
-       }
+
+    public void listClasses () {
+        //TODO implementation remaining
     }
+
     public void showClass () {
         if(activeClass == null)
             System.out.println("No active class at present");
@@ -150,6 +136,7 @@ public class ClassManagement {
             );
         }
     }
+
     private void assignActiveClass(ResultSet resultSet){
         try{
             if(resultSet.next()){
@@ -174,5 +161,7 @@ public class ClassManagement {
         }
 
     }
+
+
 }
 
